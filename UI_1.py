@@ -1,10 +1,13 @@
 import customtkinter as ctk
 from PIL import Image
+from eda.images import edaData as eda
 
+eda = eda()
 ctk.set_appearance_mode("light")
 
 root = ctk.CTk()
-root.state("zoomed")
+# TODO: set back to "zoomed"
+root.state("normal")
 
 #Setting up the grid
 root.grid_columnconfigure(0, weight=1)  
@@ -41,14 +44,76 @@ def grid_image():
     )
     img2_label.configure(text="", image=EDA_image)
 
+species_list = []
+dict_checkboxes = {
+        ".!ctkframe2.!ctkcheckbox": "Asellus sp", 
+        ".!ctkframe2.!ctkcheckbox2": "Baetidae sp", 
+        ".!ctkframe2.!ctkcheckbox3": "Elmis sp", 
+        ".!ctkframe2.!ctkcheckbox4": "Ephemerellidae", 
+        ".!ctkframe2.!ctkcheckbox5": "Erpobdella sp", 
+        ".!ctkframe2.!ctkcheckbox6": "Gammarus sp", 
+        ".!ctkframe2.!ctkcheckbox7": "Hydropsychidae sp", 
+        ".!ctkframe2.!ctkcheckbox8": "Leptophlebiidae sp", 
+        ".!ctkframe2.!ctkcheckbox9": "Leuctra sp", 
+        ".!ctkframe2.!ctkcheckbox10": "Limnius sp", 
+        ".!ctkframe2.!ctkcheckbox11": "Lymnea sp", 
+        ".!ctkframe2.!ctkcheckbox12": "Nemoura sp", 
+        ".!ctkframe2.!ctkcheckbox13": "Oligochaeta sp", 
+        ".!ctkframe2.!ctkcheckbox14": "Sericostomatidae sp", 
+        ".!ctkframe2.!ctkcheckbox15": "Sialis sp", 
+        ".!ctkframe2.!ctkcheckbox16": "Simuliidae sp", 
+        ".!ctkframe2.!ctkcheckbox17": "Sphaerium sp", 
+}
+
+def set_species_list(checkbox1_var):
+    checkbox1_var = str(checkbox1_var)
+    if checkbox1_var in dict_checkboxes.keys() and dict_checkboxes[checkbox1_var] not in species_list:
+        species_list.append(dict_checkboxes[checkbox1_var])
+
+
 def update_count():
     count = sum(1 for cb in checkboxes1 if cb.get() == 1)
     count_label.configure(text=f"Selected: {count}", font=("Arial", 18))
+    for cb in checkboxes1:
+        if cb.get() == 1:
+            set_species_list(cb)
 
-"""def distrubtion_averages():
-    box2_label.configure(text=f"Average Height: {height_mean}")
-    box2_label.configure(text=f"Average Width: {width_mean}")
-    """
+def distrubtion_averages():
+    for species in species_list:
+        height_mean, width_mean = eda.mean_height_width(species)
+        ctk.CTkLabel(box2, text=f"{species}, average height: {height_mean}, average width: {width_mean}", font=("Arial", 18)).pack(pady=(10, 5))
+    show_summary_table()
+
+def summary_table_values(lst: list[str]):
+    lst_len = len(lst)
+    string_value = ""
+    for item in lst:
+        if item != lst[lst_len-1]:
+            string_value += f"{item} | "
+        else:
+            string_value += f"{item}"
+    return string_value
+
+def show_summary_table():
+    summary_dataframe = eda.summary_table(species_list)
+    summary_columns = summary_dataframe.columns.values
+    summary_rows = summary_dataframe.index.values
+    column_text_value = summary_table_values(summary_columns)
+    column_text_value = "Species | " + column_text_value
+    ctk.CTkLabel(box3, text=column_text_value, font=("Arial", 18)).pack(pady=(10, 5))
+    for species in species_list:
+        row_text_value = species + " | "
+        for column in summary_columns:
+            to_str_val = summary_dataframe.loc[species][column]
+            if column != summary_columns[len(summary_columns)-1]:
+                row_text_value += str(to_str_val) + " | "
+            else:
+                row_text_value += str(to_str_val)
+        ctk.CTkLabel(box3, text=row_text_value, font=("Arial", 18)).pack(pady=(10, 5))
+# TODO: 
+# Work out how to add the images to the grid of images part
+# Add the image processing parts to setup
+
 
 #Title
 title = ctk.CTkLabel(root, text="Macroinvertebrate Image Analysis System", fg_color="light grey", corner_radius=20, font=("Arial", 30))
@@ -74,10 +139,12 @@ for i in range(1, 3):
 box2 = ctk.CTkFrame(left_container, fg_color="light grey", corner_radius=20)
 box2.grid(row=1, column=0, sticky="nsew", pady=5)
 ctk.CTkLabel(box2, text="Average distrubtion of image widths and heights:", font=("Arial", 18)).pack(pady=(10, 5))
+# ctk.CTkLabel(box2, text=f"{} average height: {height_mean}, average width: {width_mean}", font=("Arial", 18)).pack(pady=(10, 5))
 
 box3 = ctk.CTkFrame(left_container, fg_color="light grey", corner_radius=20)
 box3.grid(row=2, column=0, sticky="nsew", pady=5)
-#ctk.CTkLabel(box3, text=f"Amount of images being used: {number_of_images} font=("Arial", 18)).pack(pady=(10, 5))
+# TODO: Change species to work
+# ctk.CTkLabel(box3, text=f"Amount of images being used: {eda.number_of_image("Limnius sp")}", font=("Arial", 18)).pack(pady=(10, 5))
 
 #Selecting bugs
 list1 = ctk.CTkFrame(root, fg_color="light grey", corner_radius=30)
@@ -103,6 +170,7 @@ list2.grid(row=1, column=2, sticky="nsew", padx=10, pady=10)
 ctk.CTkLabel(list2, text="Select one EDA process to be completed:", font=("Arial", 18)).pack(pady=(10, 5))
 
 #Setting up tickable checkboxes to decide EDA processes used
+# TODO: Change names to actual options and what they do
 items2 = ["option 1", "option 2", "option 3", "option 4", "option 5"]
 
 checkboxes2 = []
@@ -137,7 +205,7 @@ display_label.pack(expand=True)
 
 #Image
 image = ctk.CTkImage(
-    light_image=Image.open("test_imahe.jpeg"),
+    light_image=Image.open("./insects_dataset/Elmis sp/CPH-Elmis sp.-503-t.png"),
     size=(400, 400)
 )
 
@@ -145,5 +213,9 @@ img2_label = ctk.CTkLabel(img1, text="")
 img2_label.pack(expand=True)
 
 ctk.CTkLabel(img2, image=image, text="").pack(expand=True)
+
+button1 = ctk.CTkButton(list1, text="Select", command=distrubtion_averages)
+button1.pack(pady=10)
+
 
 root.mainloop()
