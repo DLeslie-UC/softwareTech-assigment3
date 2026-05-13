@@ -1,7 +1,7 @@
 import os
 import sys
 from time import strftime, gmtime
-from PIL import Image
+from PIL import Image, ImageEnhance
 
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.insert(0, parent_dir)
@@ -17,9 +17,31 @@ class ImageManipulation(FileHandling):
         self.__save_location = self.save_location()
         self.__image_file = Image.open(self.__image)
 
+    def __check_if_other_operations_done(self, text):
+        if self.__file == "":
+            self.__file += text
+        else:
+            self.__file += f"&{text}"
+
     def black_and_white(self):
         self.__image_file = self.__image_file.convert('1')
-        self.__file += "b&w"
+        self.__check_if_other_operations_done("b&w")
+
+    def upside_down(self):
+        self.__image_file = self.__image_file.transpose(Image.FLIP_TOP_BOTTOM)
+        self.__check_if_other_operations_done("upside_down")
+
+    def sixteen_bit(self):
+        self.__image_file = self.__image_file.quantize(16)
+        self.__check_if_other_operations_done("16_bit")
+
+    def contrast(self):
+        self.__image_file = ImageEnhance.Contrast(self.__image_file).enhance(2.0)
+        self.__check_if_other_operations_done("contrast")
+
+    def brightness(self):
+        self.__image_file = ImageEnhance.Brightness(self.__image_file).enhance(2.0)
+        self.__check_if_other_operations_done("brightness")
 
     def save_image(self):
         if self.__file == "":

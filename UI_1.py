@@ -173,7 +173,7 @@ ctk.CTkLabel(list2, text="Select one EDA process to be completed:", font=("Arial
 
 #Setting up tickable checkboxes to decide EDA processes used
 # TODO: Change names to actual options and what they do
-items2 = ["Black and white", "option 2", "option 3", "option 4", "option 5"]
+items2 = ["Black And White", "Flip Upside Down", "16 Bitify", "Contrast Enhancement", "Brightness Enhancement"]
 
 dict_checkboxes2 = {
     ".!ctkframe3.!ctkcheckbox": items2[0],
@@ -185,9 +185,18 @@ dict_checkboxes2 = {
 }
 checkboxes2 = []
 for item in items2:
-    cb = ctk.CTkCheckBox(list2, text=item)
-    cb.pack(anchor="w", padx=10, pady=3)
-    checkboxes2.append(dict_checkboxes2[f"{cb}"])
+    item = ctk.CTkCheckBox(list2, text=item)
+    item.pack(anchor="w", padx=10, pady=3)
+    checkboxes2.append(item)
+
+options_list = []
+def set_options_list():
+    for checkbox2_var in checkboxes2:
+        if checkbox2_var.get() == 1:
+            checkbox2_var = str(checkbox2_var)
+            if checkbox2_var in dict_checkboxes2.keys() and dict_checkboxes2[checkbox2_var] not in options_list:
+                options_list.append(dict_checkboxes2[checkbox2_var])
+
 
 #EDA processes box
 img1 = ctk.CTkFrame(root, fg_color="light grey", corner_radius=30)
@@ -215,35 +224,47 @@ display_label.pack(expand=True)
 def rep_images():
     i = 0
     rep_images = {}
-    while i <= 9:
-        for species in species_list:
-            i += 1
-            rep_images[species] = eda.representative_images(species, num_per_species=1)
-    return rep_images
+    if species_list != []:
+        while i <= 4:
+            for species in species_list:
+                i += 1
+                rep_images[species] = eda.representative_images(species, num_per_species=1)
+            break
+        return rep_images
 
 
 def show_grid_images():
-    for species in rep_image.keys():
-        try: 
-            image = ctk.CTkImage(
-                light_image=Image.open(f"./insects_dataset/{species}/{rep_image[species][0]}"),
-                size=(75, 75)
-            )
-            ctk.CTkLabel(img2, image=image, text=species).pack(expand=True)
-        except KeyError:
-            break
+    if rep_image != None:
+        for species in rep_image.keys():
+            try: 
+                image = ctk.CTkImage(
+                    light_image=Image.open(f"./insects_dataset/{species}/{rep_image[species][0]}"),
+                    size=(100, 100)
+                )
+                ctk.CTkLabel(img2, image=image, text=species).pack(expand=True)
+            except KeyError:
+                break
 
 def image_manipulations():
+    set_options_list()
     dataset_path = os.path.join(os.getcwd(), "insects_dataset")
     rand_species = species_list[random.randint(0, len(species_list)-1)]
     save_path = os.path.join(rand_species)
     species_img = rep_image[rand_species][0]
     species_img_path = os.path.join(dataset_path, save_path, species_img)
     image = ImageManipulation(species_img_path, save_path)
-    for option in checkboxes2:
+    for option in options_list:
         option = option.lower()
         if option == "black and white":
             image.black_and_white()
+        if option == "flip upside down":
+            image.upside_down()
+        if option == "16 bitify":
+            image.sixteen_bit()
+        if option == "contrast enhancement":
+            image.contrast()
+        if option == "brightness enhancement":
+            image.brightness()
     display_image = ctk.CTkImage(
         light_image=image.return_image(),
         size=(300, 300)
@@ -258,9 +279,9 @@ def button_event():
 
     img1_label.configure(text="Processing... Please wait.")
 
-
     on_select() #distrubtion_averages
-    root.after(2000, image_manipulations) 
+    if species_list != []:
+        root.after(2000, image_manipulations) 
 
 button = ctk.CTkButton(list2, text="Continue", command=button_event)
 button.pack(pady=10)
