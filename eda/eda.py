@@ -3,12 +3,9 @@ from math import sqrt
 from PIL import Image
 import pandas as pd
 
-# TODO: Change to take a list of species and handle the logic there
-# Need to pass in functions to a function maybe?
 class edaData():
 
     def __init__(self):
-        # self.species = species
         self.__dataset_path = f"{os.getcwd()}/insects_dataset"
 
     def __folder_check(self, species: str) -> tuple[list[str], str] | FileNotFoundError:
@@ -79,7 +76,6 @@ class edaData():
             width_check = width_lower_bound <= width <= width_upper_bound
             if (height_check) and (width_check):
                 representative_list.append(image)
-            # NOTE: Can change len req if need more images
             # Done to check if have enough images already
             if len(representative_list) > num_per_species:
                 break
@@ -98,7 +94,6 @@ class edaData():
         return species_table
 
 def main():
-    # eg = edaData(['Limnius sp', 'Asellus sp'])
     species_list = ['Limnius sp', 'Asellus sp']
     eg = edaData()
     species_df = eg.summary_table(species_list)
@@ -108,15 +103,14 @@ def main():
     for species in species_list:
         print("")
         for column in species_df.columns.values:
-            # print(f"{species} value for {column}: {species_df.loc[species][column]}")
             print(f"{species} value for {column}: {species_df.loc[species]}")
-    #     print(f"Species: {species} has {eg.number_of_image(species)} number of images")
-    #     height_mean, width_mean = eg.mean_height_width(species)
-    #     print(f"Species: {species} has height mean: {height_mean} and width mean: {width_mean}")
-    #     height_std, width_std = eg.standard_deviation(species)
-    #     print(f"Species: {species} has height std: {height_std} and width std: {width_std}")
-    #     representative_list = eg.representative_images(species)
-    #     print(f"Species: {species} has representative images: {representative_list}")
+            print(f"Species: {species} has {eg.number_of_image(species)} number of images")
+        height_mean, width_mean = eg.mean_height_width(species)
+        print(f"Species: {species} has height mean: {height_mean} and width mean: {width_mean}")
+        height_std, width_std = eg.standard_deviation(species)
+        print(f"Species: {species} has height std: {height_std} and width std: {width_std}")
+        representative_list = eg.representative_images(species)
+        print(f"Species: {species} has representative images: {representative_list}")
 
 
 if __name__ == "__main__":

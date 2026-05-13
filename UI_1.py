@@ -9,8 +9,7 @@ eda = eda()
 ctk.set_appearance_mode("light")
 
 root = ctk.CTk()
-# TODO: set back to "zoomed"
-root.state("normal")
+root.state("zoomed")
 
 #Setting up the grid
 root.grid_columnconfigure(0, weight=1)  
@@ -115,8 +114,6 @@ def show_summary_table():
             else:
                 row_text_value += str(to_str_val)
         ctk.CTkLabel(box3, text=row_text_value, font=("Arial", 18)).pack(pady=(10, 5))
-# TODO: 
-# Add the image processing parts to setup
 
 
 #Title
@@ -172,7 +169,6 @@ list2.grid(row=1, column=2, sticky="nsew", padx=10, pady=10)
 ctk.CTkLabel(list2, text="Select one EDA process to be completed:", font=("Arial", 18)).pack(pady=(10, 5))
 
 #Setting up tickable checkboxes to decide EDA processes used
-# TODO: Change names to actual options and what they do
 items2 = ["Black And White", "Flip Upside Down", "16 Bitify", "Contrast Enhancement", "Brightness Enhancement"]
 
 dict_checkboxes2 = {
