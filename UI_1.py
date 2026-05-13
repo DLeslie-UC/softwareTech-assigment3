@@ -1,6 +1,9 @@
 import customtkinter as ctk
+import os
 from PIL import Image
-from eda.images import edaData as eda
+from eda.eda import edaData as eda
+from images.images import ImageManipulation
+import random
 
 eda = eda()
 ctk.set_appearance_mode("light")
@@ -19,12 +22,6 @@ root.grid_rowconfigure(0, weight=1)
 root.grid_rowconfigure(1, weight=3)
 root.grid_rowconfigure(2, weight=3)
 
-def button_event():
-
-    img1_label.configure(text="Processing... Please wait.")
-
-    root.after(2000, completed_EDA_image) 
-    root(grid_image) #distrubtion_averages
 
 def completed_EDA_image():
     img = Image.open("bug test.jpeg") 
@@ -45,7 +42,7 @@ def grid_image():
     img2_label.configure(text="", image=EDA_image)
 
 species_list = []
-dict_checkboxes = {
+dict_checkboxes1 = {
         ".!ctkframe2.!ctkcheckbox": "Asellus sp", 
         ".!ctkframe2.!ctkcheckbox2": "Baetidae sp", 
         ".!ctkframe2.!ctkcheckbox3": "Elmis sp", 
@@ -65,10 +62,11 @@ dict_checkboxes = {
         ".!ctkframe2.!ctkcheckbox17": "Sphaerium sp", 
 }
 
+
 def set_species_list(checkbox1_var):
     checkbox1_var = str(checkbox1_var)
-    if checkbox1_var in dict_checkboxes.keys() and dict_checkboxes[checkbox1_var] not in species_list:
-        species_list.append(dict_checkboxes[checkbox1_var])
+    if checkbox1_var in dict_checkboxes1.keys() and dict_checkboxes1[checkbox1_var] not in species_list:
+        species_list.append(dict_checkboxes1[checkbox1_var])
 
 
 def update_count():
@@ -82,7 +80,14 @@ def distrubtion_averages():
     for species in species_list:
         height_mean, width_mean = eda.mean_height_width(species)
         ctk.CTkLabel(box2, text=f"{species}, average height: {height_mean}, average width: {width_mean}", font=("Arial", 18)).pack(pady=(10, 5))
+
+def on_select():
+    distrubtion_averages()
+    global rep_image 
+    rep_image = rep_images()
     show_summary_table()
+    show_grid_images()
+
 
 def summary_table_values(lst: list[str]):
     lst_len = len(lst)
@@ -111,7 +116,6 @@ def show_summary_table():
                 row_text_value += str(to_str_val)
         ctk.CTkLabel(box3, text=row_text_value, font=("Arial", 18)).pack(pady=(10, 5))
 # TODO: 
-# Work out how to add the images to the grid of images part
 # Add the image processing parts to setup
 
 
@@ -143,8 +147,6 @@ ctk.CTkLabel(box2, text="Average distrubtion of image widths and heights:", font
 
 box3 = ctk.CTkFrame(left_container, fg_color="light grey", corner_radius=20)
 box3.grid(row=2, column=0, sticky="nsew", pady=5)
-# TODO: Change species to work
-# ctk.CTkLabel(box3, text=f"Amount of images being used: {eda.number_of_image("Limnius sp")}", font=("Arial", 18)).pack(pady=(10, 5))
 
 #Selecting bugs
 list1 = ctk.CTkFrame(root, fg_color="light grey", corner_radius=30)
@@ -171,20 +173,26 @@ ctk.CTkLabel(list2, text="Select one EDA process to be completed:", font=("Arial
 
 #Setting up tickable checkboxes to decide EDA processes used
 # TODO: Change names to actual options and what they do
-items2 = ["option 1", "option 2", "option 3", "option 4", "option 5"]
+items2 = ["Black and white", "option 2", "option 3", "option 4", "option 5"]
 
+dict_checkboxes2 = {
+    ".!ctkframe3.!ctkcheckbox": items2[0],
+    ".!ctkframe3.!ctkcheckbox1": items2[1],
+    ".!ctkframe3.!ctkcheckbox2": items2[1],
+    ".!ctkframe3.!ctkcheckbox3": items2[2],
+    ".!ctkframe3.!ctkcheckbox4": items2[3],
+    ".!ctkframe3.!ctkcheckbox5": items2[4],
+}
 checkboxes2 = []
 for item in items2:
     cb = ctk.CTkCheckBox(list2, text=item)
     cb.pack(anchor="w", padx=10, pady=3)
-    checkboxes2.append(cb)
+    checkboxes2.append(dict_checkboxes2[f"{cb}"])
 
 #EDA processes box
 img1 = ctk.CTkFrame(root, fg_color="light grey", corner_radius=30)
 img1.grid(row=1, column=3, sticky="nsew", padx=10, pady=10)
 
-button = ctk.CTkButton(list2, text="Continue", command=button_event)
-button.pack(pady=10)
 
 img1_label = ctk.CTkLabel(img1, text="")
 img1_label.pack(expand=True)
@@ -204,18 +212,58 @@ display_label = ctk.CTkLabel(img2, text="")
 display_label.pack(expand=True)
 
 #Image
-image = ctk.CTkImage(
-    light_image=Image.open("./insects_dataset/Elmis sp/CPH-Elmis sp.-503-t.png"),
-    size=(400, 400)
-)
+def rep_images():
+    i = 0
+    rep_images = {}
+    while i <= 9:
+        for species in species_list:
+            i += 1
+            rep_images[species] = eda.representative_images(species, num_per_species=1)
+    return rep_images
+
+
+def show_grid_images():
+    for species in rep_image.keys():
+        try: 
+            image = ctk.CTkImage(
+                light_image=Image.open(f"./insects_dataset/{species}/{rep_image[species][0]}"),
+                size=(75, 75)
+            )
+            ctk.CTkLabel(img2, image=image, text=species).pack(expand=True)
+        except KeyError:
+            break
+
+def image_manipulations():
+    dataset_path = os.path.join(os.getcwd(), "insects_dataset")
+    rand_species = species_list[random.randint(0, len(species_list)-1)]
+    save_path = os.path.join(rand_species)
+    species_img = rep_image[rand_species][0]
+    species_img_path = os.path.join(dataset_path, save_path, species_img)
+    image = ImageManipulation(species_img_path, save_path)
+    for option in checkboxes2:
+        option = option.lower()
+        if option == "black and white":
+            image.black_and_white()
+    display_image = ctk.CTkImage(
+        light_image=image.return_image(),
+        size=(300, 300)
+    )
+    img1_label.configure(text="", image=display_image)
+    image.save_image()
 
 img2_label = ctk.CTkLabel(img1, text="")
 img2_label.pack(expand=True)
 
-ctk.CTkLabel(img2, image=image, text="").pack(expand=True)
+def button_event():
 
-button1 = ctk.CTkButton(list1, text="Select", command=distrubtion_averages)
-button1.pack(pady=10)
+    img1_label.configure(text="Processing... Please wait.")
+
+
+    on_select() #distrubtion_averages
+    root.after(2000, image_manipulations) 
+
+button = ctk.CTkButton(list2, text="Continue", command=button_event)
+button.pack(pady=10)
 
 
 root.mainloop()
