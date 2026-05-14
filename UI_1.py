@@ -234,7 +234,8 @@ def show_grid_images():
         for species in rep_image.keys():
             try: 
                 image = ctk.CTkImage(
-                    light_image=Image.open(f"./insects_dataset/{species}/{rep_image[species][0]}"),
+                    # light_image=Image.open(f"./insects_dataset/{species}/{rep_image[species][0]}"),
+                    light_image=Image.open(os.path.join( "insects_dataset", species, rep_image[species][0] )),
                     size=(100, 100)
                 )
                 ctk.CTkLabel(img2, image=image, text=species).pack(expand=True)

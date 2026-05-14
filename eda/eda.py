@@ -6,11 +6,11 @@ import pandas as pd
 class edaData():
 
     def __init__(self):
-        self.__dataset_path = f"{os.getcwd()}/insects_dataset"
+        self.__dataset_path = os.path.join( os.getcwd(), "insects_dataset" )
 
     def __folder_check(self, species: str) -> tuple[list[str], str] | FileNotFoundError:
         try:
-            path = f"{self.__dataset_path}/{species}"
+            path = os.path.join( self.__dataset_path, species )
             image_list = os.listdir(path)
         except FileNotFoundError:
             raise FileNotFoundError(f"The Species, {species},  doesn't exist in the dataset path")
@@ -31,7 +31,7 @@ class edaData():
         width_total = 0
         image_count = self.number_of_image(species, image_list)
         for image in image_list:
-            image_path = f"{path}/{image}"
+            image_path = os.path.join( path, image )
             width, height = Image.open(image_path).size
             height_total += height
             width_total += width
@@ -49,7 +49,7 @@ class edaData():
         width_sum_squared_diff = 0
 
         for image in image_list:
-            image_path = f"{path}/{image}"
+            image_path = os.path.join( path, image )
             width, height = Image.open(image_path).size
             height_sum_squared_diff += (height - height_mean)**2
             width_sum_squared_diff += (width - width_mean)**2
@@ -70,7 +70,7 @@ class edaData():
         width_upper_bound = width_mean + width_std
         representative_list = []
         for image in image_list:
-            image_path = f"{path}/{image}"
+            image_path = os.path.join( path, image )
             width, height = Image.open(image_path).size
             height_check = height_lower_bound <= height <= height_upper_bound
             width_check = width_lower_bound <= width <= width_upper_bound
