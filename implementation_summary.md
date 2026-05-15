@@ -22,9 +22,10 @@ Out of these, the ones that helped get the actual image processing stuff done th
 The key features we implemented were getting the mean width and height of each species, getting a set of representative images based off that and if they were within 1 standard deviation of the means, and the summary table to showcase a lot of this data. We also implemented handling the images to be able to turn the image black and white, make it brighter, turn up the contrast, amongst others.
 
 ## Images of example outputs
-![Example image 1](./examples/example.png)
-![Example image 2](./examples/example2.png)
-![Example image 3](./examples/example3.png)
+<img width="2209" height="1379" alt="example" src="https://github.com/user-attachments/assets/4e6eb28c-8880-4644-9b74-f5efba06fefb" />
+<img width="2209" height="1379" alt="example2" src="https://github.com/user-attachments/assets/a1150e86-a24c-4879-aef7-94f3455ad12f" />
+<img width="2209" height="1379" alt="example3" src="https://github.com/user-attachments/assets/a25db4d5-8fe7-40d1-be87-1422432dcb5d" />
+
 
 ## Testing summary
 Testing for the edaData class was done via the main() function in that modules file, done to test every action in the class.
